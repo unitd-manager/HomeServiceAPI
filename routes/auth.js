@@ -428,6 +428,7 @@ app.post('/changeNumber', (req, res) => {
   });
 });
 // Forgot password API
+
 app.post('/forgot', (req, res) => {
   const { email } = req.body;
 
@@ -439,39 +440,31 @@ app.post('/forgot', (req, res) => {
   db.query(query, (error, results) => {
     if (error) {
       console.error('Error updating reset token:', error);
-      res.status(500).json({ error: 'An error occurred' });
-    } else {
-      // Send the reset token to the user via email, or any other desired method
-      // Here, we are simply sending the reset token in the API response
-    //   const content ='<p>Hii, Please <a href="http://unitdecom.unitdtechnologies.com/reset-password?token='+randomstring+'">Click here! </a> to reset the password';
-//}
-     sgMail.setApiKey("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")
- 
-  let data = {
-  to: email,
-  from: 'notification@unitdtechnologies.com',
-  subject: 'Forgot Password',
-    text: '<p>Hii, Please <a href="https://unitdecom.unitdtechnologies.com/reset-password?token='+resetToken+'">Click here! </a> to reset the password </p>'
-    
-};
- sgMail
-  .sendMultiple(data)
-  .then((response) => {
-     return res.status(200).send({
-        data: response,
-        msg: 'Success',
-      })
-  })
-  .catch((error) => {
-      return res.status(400).send({
-        data: error,
-        msg: 'failed',
-      })
-  })
-     res.json({ resetToken });
+      return res.status(500).json({ error: 'An error occurred while updating reset token' });
     }
+
+    sgMail.setApiKey("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"); // Use environment variable for API key
+
+    const msg = {
+      to: email,
+      from: 'notification@unitdtechnologies.com',
+      subject: 'Forgot Password',
+      html: `<p>Hi, Please <a href="https://unitdecom.unitdtechnologies.com/reset-password?token=${resetToken}">Click here!</a> to reset your password.</p>`
+    };
+
+    sgMail
+      .send(msg)
+      .then((response) => {
+        console.log('Email sent:', response);
+        res.status(200).json({ msg: 'Password reset email sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send email' });
+      });
   });
 });
+
 
 // Reset password API
 app.post('/reset', (req, res) => {

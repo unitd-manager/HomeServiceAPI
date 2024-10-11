@@ -3,7 +3,7 @@ const util = require("util");
 const db = require("../config/Database.js");
 const uniqid = require("uniqid");
 const fs = require("fs");
-const baseUrl = "http://192.64.114.83/FoodEcomAPI/storage/uploads/";
+const baseUrl = "http://192.64.114.83/HomeServicesAPI/storage/uploads/";
 const path = require("path");
 const directoryPath = path.join(__dirname, "../storage/uploads/");
 
