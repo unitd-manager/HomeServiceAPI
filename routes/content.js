@@ -54,6 +54,39 @@ app.get("/getContent", (req, res, next) => {
   );
 });
 
+app.get("/getStory", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  FROM content c
+  WHERE c.content_type ='Our Story' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
 app.get("/getBanners", (req, res, next) => {
   db.query(
     `select c.title, c.description ,m.file_name,m.display_title, c.content_id
