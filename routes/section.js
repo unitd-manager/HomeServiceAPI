@@ -120,6 +120,54 @@ app.get('/getService11', (req, res, next) => {
   );
 });
 
+app.get('/getPopular', (req, res, next) => {
+  db.query(`Select c.*
+  From content c
+  Where c.content_id !='' AND c.content_type="Our Main Popular"`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+
+            });
+
+        }
+ 
+    }
+  );
+});
+
+app.get('/getPopular11', (req, res, next) => {
+  db.query(`Select c.*
+  From content c
+  Where c.content_id !='' AND c.content_type="Popular Title"`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+
+            });
+
+        }
+ 
+    }
+  );
+});
+
 app.get('/getSectionForSidemenu', (req, res, next) => {
   db.query(`Select *
   From section Where published = 1 AND  (button_position="Admin" OR button_position="Reports")
