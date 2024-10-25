@@ -45,6 +45,33 @@ app.get("/getContacts", (req, res, next) => {
     }
   );
 });
+app.post('/editContactProfile', (req, res, next) => {
+  db.query(`UPDATE contact
+            SET 
+            email=${db.escape(req.body.email)}
+            ,mobile=${db.escape(req.body.mobile)}
+            ,first_name=${db.escape(req.body.first_name)}
+            ,address2=${db.escape(req.body.address2)}
+            ,address_state=${db.escape(req.body.address_state)}
+            ,address_country_code=${db.escape(req.body.address_country_code)}
+            WHERE contact_id=${db.escape(req.body.contact_id)}`,
+    (err, result) => {
+     
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+            });
+      }
+     }
+  );
+});
 
 app.get("/getMobileContacts", (req, res, next) => {
   db.query(
