@@ -44,9 +44,11 @@ app.get('/getSection', (req, res, next) => {
 
 
 app.get('/getService', (req, res, next) => {
-  db.query(`Select *
-  From product
-  Where product_id !='' order by sort_order ASC`,
+  db.query(`Select p.*,m.file_name
+  From product p
+  LEFT JOIN media m ON m.record_id=p.product_id 
+  WHERE p.product_id !='' 
+  order by p.sort_order ASC`,
     (err, result) => {
       if (err) {
         console.log('error: ', err)
@@ -68,9 +70,36 @@ app.get('/getService', (req, res, next) => {
 });
 
 app.get('/getTeam', (req, res, next) => {
-  db.query(`Select *
-  From content
-  Where content_id !='' AND content_type="Our Team"`,
+  db.query(`Select c.*,m.file_name
+  From content c
+  LEFT JOIN media m ON m.record_id=c.content_id 
+  Where c.content_id !='' AND c.content_type="Our Team"`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+
+            });
+
+        }
+ 
+    }
+  );
+});
+
+
+app.get('/getService11', (req, res, next) => {
+  db.query(`Select c.*,m.file_name
+  From content c
+  LEFT JOIN media m ON m.record_id=c.content_id 
+  Where c.content_id !='' AND c.content_type="Our Main Service"`,
     (err, result) => {
       if (err) {
         console.log('error: ', err)
