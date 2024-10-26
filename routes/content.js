@@ -69,7 +69,288 @@ app.get("/getStory", (req, res, next) => {
   ,c.creation_date
   ,c.modification_date 
   FROM content c
+  WHERE c.content_type ='The Great Place for Medical Services' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getAboutCaregivers", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  FROM content c
+  WHERE c.content_type ='Experienced Caregivers' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getWhyLakshmiMission", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  FROM content c
+  WHERE c.content_type ='Why Lakshmi Mission' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getLakshmiMission", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
+  WHERE c.content_type ='LakshmiMissionAAA' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+app.get("/getOurStory", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
   WHERE c.content_type ='Our Story' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getQuotes", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
+  WHERE c.content_type ='About Quotes' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getAboutTab", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
+  WHERE c.content_type ='About Tab' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getLakshmiMissionTab", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
+  WHERE c.content_type ='LakshmiMissionAAA Tab' AND c.published = '1'`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getWhyLakshmiMissionTab", (req, res, next) => {
+  db.query(
+    `Select c.title
+  , c.content_id
+  ,c.category_id
+  ,c.sort_order
+  ,c.sub_category_id
+  ,c.content_type
+  ,c.show_title
+  ,c.published
+  ,c.content_date 
+  ,c.description
+  ,c.creation_date
+  ,c.modification_date 
+  ,m.record_id
+  ,m.file_name
+  FROM content c
+  left join media m ON c.content_id = m.record_id
+  WHERE c.content_type ='WhyLakshmiMissionTab' AND c.published = '1'`,
     (err, result) => {
       if (err) {
         console.log("error: ", err);
