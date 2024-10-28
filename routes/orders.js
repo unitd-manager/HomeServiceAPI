@@ -265,73 +265,83 @@ app.post("/create-checkout-session", async (req, res)=>{
 
 app.post("/getOrdersByContactId", (req, res, next) => {
   db.query(
-    `select o.order_id 
-    ,o.order_status
-    ,o.payment_method
-    ,o.shipping_first_name
-    ,o.shipping_last_name
-    ,o.shipping_email
-    ,o.shipping_address1
-    ,o.shipping_address2
-    ,o.shipping_address_city
-    ,o.shipping_address_area
-    ,o.shipping_address_state
-    ,o.shipping_address_country_code
-    ,o.shipping_address_po_code
-    ,o.shipping_phone
-    ,o.cust_first_name
-    ,o.cust_last_name
-    ,o.cust_email
-    ,o.cust_address1
-    ,o.cust_address2
-    ,o.cust_address_city
-    ,o.cust_address_area
-    ,o.cust_address_state
-    ,o.cust_address_country
-    ,o.cust_address_po_code
-    ,o.cust_phone
-    ,o.memo
-    ,o.creation_date
-    ,o.modification_date
-    ,o.flag
-    ,o.record_type
-    ,o.module
-    ,o.currency
-    ,o.contact_id 
-    ,o.order_date
-   ,o.order_code
-   ,o.shipping_charge
-   ,o.company_id 
-   ,o.add_gst_to_total
-   ,o.invoice_terms
-   ,o.notes
-   ,o.shipping_address_country
-   ,o.address_country
-   ,o.delivery_to_text
-   ,o.created_by
-   ,o.modified_by
-   ,o.discount
-   ,o.name_of_company
-   ,o.vat
-   ,o.cust_company_name
-   ,o.site_id
-   ,o.manual_invoice
-   ,o.link_stock
-   ,o.selling_company
-   ,o.link_account
-   ,o.start_date
-   ,o.end_date
-   ,o.auto_create_invoice
-   ,o.delivery_date
-   ,o.delivery_terms
-   ,o.cust_fax
-   ,o.shipping_fax
-   ,o.published
-    ,GROUP_CONCAT(m.file_name) AS images
-   from orders o
-     LEFT JOIN media m ON (o.product_id = m.record_id) AND (m.room_name='product')
-      where o.contact_id= ${db.escape(req.body.contact_id)}
-   GROUP BY o.product_id `,
+    `SELECT 
+    o.order_id,
+    o.order_status,
+    o.payment_method,
+    o.shipping_first_name,
+    o.shipping_last_name,
+    o.shipping_email,
+    o.shipping_address1,
+    o.shipping_address2,
+    o.shipping_address_city,
+    o.shipping_address_area,
+    o.shipping_address_state,
+    o.shipping_address_country_code,
+    o.shipping_address_po_code,
+    o.shipping_phone,
+    o.cust_first_name,
+    o.cust_last_name,
+    o.cust_email,
+    o.cust_address1,
+    o.cust_address2,
+    o.cust_address_city,
+    o.cust_address_area,
+    o.cust_address_state,
+    o.cust_address_country,
+    o.cust_address_po_code,
+    o.cust_phone,
+    o.memo,
+    o.creation_date,
+    o.modification_date,
+    o.flag,
+    o.record_type,
+    o.module,
+    o.currency,
+    o.contact_id,
+    o.order_date,
+    o.order_code,
+    o.shipping_charge,
+    o.company_id,
+    o.add_gst_to_total,
+    o.invoice_terms,
+    o.notes,
+    o.shipping_address_country,
+    o.address_country,
+    o.delivery_to_text,
+    o.created_by,
+    o.modified_by,
+    o.discount,
+    o.name_of_company,
+    o.vat,
+    o.cust_company_name,
+    o.site_id,
+    o.manual_invoice,
+    o.link_stock,
+    o.selling_company,
+    o.link_account,
+    o.start_date,
+    o.end_date,
+    o.auto_create_invoice,
+    o.delivery_date,
+    o.delivery_terms,
+    o.cust_fax,
+    o.shipping_fax,
+    o.published,
+    o.delivery_status,
+    ot.unit_price,
+    ot.cost_price,
+    ot.discount_percentage,
+    ot.qty,
+    ot.item_title,
+    (ot.unit_price * (1 - COALESCE(ot.discount_percentage, 0) / 100) * ot.qty) AS total_amount
+
+FROM 
+    orders o
+LEFT JOIN 
+    order_item ot ON ot.order_id = o.order_id
+WHERE 
+    o.contact_id = ${db.escape(req.body.contact_id)} `,
     
     (err, result) => {
       if (err) {
@@ -774,6 +784,8 @@ app.post("/getOrderHistoryById", (req, res, next) => {
     ,o.remarks
     ,o.month
     ,o.year
+    ,(o.unit_price * (COALESCE(o.discount_percentage, 0) / 100) * o.qty) AS discount_amount
+    ,(o.unit_price * (1 - COALESCE(o.discount_percentage, 0) / 100) * o.qty) AS total_amount
     from order_item o
     LEFT JOIN contact c ON (c.contact_id = o.contact_id)
      LEFT JOIN orders a ON (a.order_id = o.order_id)
