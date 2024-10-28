@@ -388,6 +388,28 @@ app.post('/getFavByContactId', (req, res, next) => {
   );
 });
 
+app.post('/getwishListByContactId', (req, res, next) => {
+  db.query(`SELECT w.* FROM wish_list w WHERE w.contact_id =${db.escape(req.body.contact_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+            });
+
+        }
+ 
+    }
+  );
+});
+
+
 app.post('/getRazorpayEmail', (req, res, next) => {
   db.query(`SELECT o.cust_first_name
         ,o.cust_email
