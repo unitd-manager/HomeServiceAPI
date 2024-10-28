@@ -30,8 +30,8 @@ app.post('/login', (req, res, next) => {
           status:'400'
         });
       } else {
-          var token = jwt.sign({ id: result[0].contact_id }, 'unitdecom', {
-              expiresIn: 86400 // expires in 24 hours
+          var token = jwt.sign({ id: result[0].contact_id }, 'homeservice', {
+              expiresIn: 86400 
             });
             return res.status(200).send({
               data: result[0],
@@ -222,6 +222,7 @@ app.post('/register', (req, res, next) => {
   , pass_word: req.body.password
   , first_name	: req.body.first_name
   , last_name	: req.body.last_name
+  , pass_word	: req.body.pass_word
   , mobile	: req.body.mobile
   , address1: req.body.address1
   , address2: req.body.address2

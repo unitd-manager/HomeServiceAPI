@@ -162,20 +162,26 @@ sgMail.setApiKey("SG.Nqkq0FOOSEu6kPVJPvFMKA.YcbfLNHfccHQxLnpH8OrR7L4nRzPzsVMLM89
 });
 
 app.post('/resetVerification', (req, res) => {
-    
-  const { resetToken} = req.body;
+    const { resetToken } = req.body;
 
-  // Update the user's password with the new password
-  const query = `UPDATE contact SET mail_verification = 1, mail_otp_no = NULL WHERE mail_otp_no='${resetToken}'`;
-  db.query(query, (error, results) => {
-    if (error) {
-      console.error('Error resetting verification:', error);
-      res.status(500).json({ error: 'An error occurred' });
-    } else {
-      res.json({ message: 'Your Account is verified successfully' });
-    }
-  });
+    // Update mail_verification field to 1 for the token
+    db.query(
+        `UPDATE contact SET mail_verification = 1 WHERE mail_otp_no = ?`,
+        [resetToken],
+        (error, results) => {
+            if (error) {
+                console.error('Error updating mail verification:', error);
+                return res.status(500).json({ error: 'An error occurred' });
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ error: 'Invalid token' });
+            }
+            return res.status(200).json({ message: 'Email verified successfully' });
+        }
+    );
 });
+
+
 
 app.post('/sendUseremailApp', (req, res, next) => {
     const { to } = req.body;
@@ -231,9 +237,54 @@ sgMail.setApiKey("SG.koXvByUCTWGMh33s8yU4kg.CtVB51MVd18JsHNydEnBn_dQLvP11YxBH0OO
 });
 
 
-
-
 app.post('/sendUseremail', (req, res, next) => {
+    const { to } = req.body;
+
+    // Generate a random password reset token
+    const resetToken = randomstring.generate(10);
+
+    // Store the reset token in the database
+    db.query(`SELECT mail_otp_no FROM contact WHERE email = ?`, [to], (error, results) => {
+        if (error) {
+            console.error('Error updating reset token:', error);
+            return res.status(500).json({ error: 'An error occurred' });
+        } else if (results.length === 0) {
+            return res.status(404).json({ error: 'Email not found' });
+        } else {
+            sgMail.setApiKey("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");
+
+            const data = {
+                to: req.body.to,
+                from: 'notification@unitdtechnologies.com',
+                templateId: "d-b5f8e0d15a64457488e7d35c64f36a32",
+                dynamic_template_data: {
+                    subject: req.body.subject,
+                    url: `https://homeservices.unitdtechnologies.com/#/mail-verification?token=${results[0].mail_otp_no}`
+                }
+            };
+
+            sgMail
+                .sendMultiple(data)
+                .then((response) => {
+                    return res.status(200).send({
+                        data: response,
+                        msg: 'Success',
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error sending email:', error);
+                    return res.status(400).send({
+                        data: error,
+                        msg: 'Failed to send email',
+                    });
+                });
+        }
+    });
+});
+
+
+
+app.post('/sendUseremail1', (req, res, next) => {
     const { to } = req.body;
 
   // Generate a random password reset token
@@ -247,7 +298,7 @@ app.post('/sendUseremail', (req, res, next) => {
       res.status(500).json({ error: 'An error occurred' });
     } else {
     
-sgMail.setApiKey("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")
+sgMail.setApiKey("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")
 
   let data = {
   to: req.body.to,
@@ -255,7 +306,7 @@ sgMail.setApiKey("SG.koXvByUCTWGMh33s8yU4kg.CtVB51MVd18JsHNydEnBn_dQLvP11YxBH0OO
   templateId:"d-b5f8e0d15a64457488e7d35c64f36a32",
   dynamic_template_data: {
   subject: req.body.subject,
-  url: `https://unitdecom.unitdtechnologies.com/mail-verification?token=${results[0]}`}
+url: `https://homeservices.unitdtechnologies.com/#/mail-verification?token=${results[0]}`}
 
 };
  sgMail
