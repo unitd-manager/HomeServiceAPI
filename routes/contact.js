@@ -51,6 +51,7 @@ app.post('/editContactProfile', (req, res, next) => {
             email=${db.escape(req.body.email)}
             ,mobile=${db.escape(req.body.mobile)}
             ,first_name=${db.escape(req.body.first_name)}
+            ,address1=${db.escape(req.body.address1)}
             ,address2=${db.escape(req.body.address2)}
             ,address_state=${db.escape(req.body.address_state)}
             ,address_country_code=${db.escape(req.body.address_country_code)}
