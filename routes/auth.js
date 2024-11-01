@@ -30,8 +30,8 @@ app.post('/login', (req, res, next) => {
           status:'400'
         });
       } else {
-          var token = jwt.sign({ id: result[0].contact_id }, 'homeservice', {
-              expiresIn: 86400 
+          var token = jwt.sign({ id: result[0].contact_id }, 'unitdecom', {
+              expiresIn: 86400 // expires in 24 hours
             });
             return res.status(200).send({
               data: result[0],
@@ -133,6 +133,28 @@ app.get("/getContactImage", (req, res, next) => {
     }
   );
   });
+
+app.post('/resetpassword', (req, res) => {
+  const { resetToken, newPassword } = req.body;
+
+  // Ensure password and token are valid
+  if (!resetToken || !newPassword) {
+    return res.status(400).json({ error: 'Token and new password are required' });
+  }
+
+  const query = `UPDATE contact SET pass_word = ?, random_no = NULL WHERE random_no = ?`;
+  db.query(query, [newPassword, resetToken], (error, results) => {
+    if (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ error: 'An error occurred' });
+    } else if (results.affectedRows === 0) {
+      // No user found with this token
+      res.status(404).json({ error: 'Invalid or expired token' });
+    } else {
+      res.json({ message: 'Password reset successfully' });
+    }
+  });
+});
 
 app.post('/backlogin', (req, res, next) => {
   db.query(`SELECT * FROM staff WHERE email=${db.escape(req.body.email)} AND pass_word=${db.escape(req.body.password)}`,
@@ -428,6 +450,7 @@ app.post('/changeNumber', (req, res) => {
     }
   });
 });
+
 // Forgot password API
 
 app.post('/forgot', (req, res) => {
@@ -444,13 +467,13 @@ app.post('/forgot', (req, res) => {
       return res.status(500).json({ error: 'An error occurred while updating reset token' });
     }
 
-    sgMail.setApiKey("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"); // Use environment variable for API key
-
+    sgMail.setApiKey("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"); 
+    
     const msg = {
       to: email,
       from: 'notification@unitdtechnologies.com',
       subject: 'Forgot Password',
-      html: `<p>Hi, Please <a href="https://unitdecom.unitdtechnologies.com/reset-password?token=${resetToken}">Click here!</a> to reset your password.</p>`
+      html: `<p>Hi, Please <a href="https://homeservices.unitdtechnologies.com/#/reset-new-password?token=${resetToken}">Click here!</a> to reset your password.</p>`
     };
 
     sgMail
