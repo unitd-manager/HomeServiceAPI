@@ -102,31 +102,84 @@ let { amount, token } = req.body
 
 });
 
-  app.post("/getBasket", (req, res, next) => {
-  db.query(
-    `SELECT b.*, p.title, p.price,p.discount_percentage,p.discount_amount, GROUP_CONCAT(m.file_name) AS images
-FROM basket b
-LEFT JOIN product p ON b.product_id = p.product_id
-LEFT JOIN media m ON p.product_id = m.record_id AND m.room_name='product'
-WHERE b.contact_id = ${db.escape(req.body.contact_id)}
-GROUP BY b.basket_id, p.title, p.price;`,
+app.post("/getBasket", (req, res) => {
+  const contactId = req.body.contact_id;
+
+  const query = `
+    SELECT 
+      b.*, 
+      p.title, 
+      p.price, 
+      p.discount_percentage, 
+      p.discount_amount, 
+      GROUP_CONCAT(m.file_name) AS images
+    FROM 
+      basket b
+    LEFT JOIN 
+      product p ON b.product_id = p.product_id
+    LEFT JOIN 
+      media m ON p.product_id = m.record_id AND m.room_name = 'product'
+    WHERE 
+      b.contact_id = ?
+    GROUP BY 
+      b.basket_id, p.title, p.price;
+  `;
+
+  db.query(query, [contactId], (err, result) => {
+    if (err) {
+      console.error('Error:', err);
+      return res.status(400).send({
+        data: err,
+        msg: 'Failed to retrieve cart items',
+      });
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: 'Success',
+      });
+    }
+  });
+});
+
+app.post('/getBaskets', (req, res, next) => {
+  db.query(`SELECT 
+      b.*, 
+      p.title, 
+      p.price, 
+      p.discount_percentage, 
+      p.discount_amount, 
+      c.contact_id,
+      GROUP_CONCAT(m.file_name) AS images
+    FROM 
+      basket b
+    LEFT JOIN 
+      product p ON b.product_id = p.product_id
+    LEFT JOIN 
+      contact c ON b.contact_id = c.contact_id
+    LEFT JOIN 
+      media m ON p.product_id = m.record_id AND m.room_name = 'product'
+    WHERE 
+      c.contact_id = ${db.escape(req.body.contact_id)}
+    GROUP BY 
+      b.basket_id, p.title, p.price`,
     (err, result) => {
       if (err) {
-        console.log('error: ', err);
+        console.log('error: ', err)
         return res.status(400).send({
           data: err,
           msg: 'failed',
-        });
+        })
       } else {
         return res.status(200).send({
           data: result,
           msg: 'Success',
             });
+
         }
+ 
     }
   );
 });
-
  app.post("/getAddressContact", (req, res, next) => {
   db.query(
     `select o.order_id 
@@ -893,6 +946,46 @@ app.post("/editOrders", (req, res, next) => {
 });
 
 
+app.post('/editBasket', async (req, res) => {
+  const { items } = req.body;
+
+  // Check if 'items' is present and is an array
+  if (!Array.isArray(items)) {
+      return res.status(400).send({ message: "'items' should be an array" });
+  }
+
+  try {
+      let affectedRows = 0;
+
+      // Loop through each item to update them individually
+      for (let item of items) {
+          const { basket_id, qty } = item;
+
+          if (!basket_id || !qty || qty <= 0) {
+              continue; // Skip invalid items
+          }
+
+          // Update the cart item
+          const result = await db.query(`
+              UPDATE basket
+              SET qty = ?
+              WHERE basket_id = ?`, [qty, basket_id]);
+
+          affectedRows += result.affectedRows; // Accumulate affected rows
+      }
+
+      if (affectedRows > 0) {
+          res.status(200).send({ message: "Cart updated successfully" });
+      } else {
+          res.status(400).send({ message: "No items were updated" });
+      }
+
+  } catch (error) {
+      console.error("Error updating cart items:", error);
+      res.status(500).send({ message: "Server error" });
+  }
+});
+
 
 app.post("/editReturnOrderItem", (req, res, next) => {
   db.query(
@@ -1020,6 +1113,29 @@ app.post("/deleteorders", (req, res, next) => {
     }
   });
 });
+
+app.post('/insertOrderItems', async (req, res) => {
+  const { order_id, items } = req.body;
+
+  try {
+    // Assume a database connection or query function is available as `db`
+    const insertItemsPromises = items.map(item =>
+      db.query(
+        'INSERT INTO order_item (order_id, product_id, qty, unit_price) VALUES (?, ?, ?, ?)',
+        [order_id, item.product_id, item.qty, item.unit_price]
+      )
+    );
+
+    // Execute all insertions
+    await Promise.all(insertItemsPromises);
+
+    res.status(200).json({ message: 'Order items successfully inserted' });
+  } catch (error) {
+    console.error('Error inserting order items:', error);
+    res.status(500).json({ error: 'Failed to insert order items' });
+  }
+});
+
 
 app.post('/insertOrderItem', (req, res, next) => {
   let data = {
